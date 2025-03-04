@@ -12,6 +12,7 @@ For this reason, there's a `default.yaml` file that you can utilize to create a 
 
 ```
 limactl create --name=default default.yaml
+limactl start default --timeout 30m
 ```
 
-**NOTE**: Checkout the `default.yaml` since some steps are commented, for convenience.
+**NOTE**: The start up process takes quite a bit of time (~30min), so sit back and relax for a bit.

@@ -30,3 +30,73 @@ provision:
       apt-get install -y libelf-dev libcap-dev libpcap-dev libbfd-dev binutils-dev build-essential make
       apt-get install -y bpfcc-tools
       apt-get install -y python3-pip
+
+  # Debug Symbols for eBPF Tools
+  - mode: system
+    script: |
+      #!/bin/bash
+      apt-get install -y ubuntu-dbgsym-keyring
+      echo "deb http://ddebs.ubuntu.com $(lsb_release -cs) main restricted universe multiverse
+      deb http://ddebs.ubuntu.com $(lsb_release -cs)-updates main restricted universe multiverse
+      deb http://ddebs.ubuntu.com $(lsb_release -cs)-proposed main restricted universe multiverse" | \
+      tee -a /etc/apt/sources.list.d/ddebs.list
+      apt-get install -y ubuntu-dbgsym-keyring
+      apt-get update -y
+      apt-get install -y bpftrace-dbgsym
+
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      apt-get install -y libbpf-dev
+      ln -sf /usr/include/$(uname -m)-linux-gnu/asm /usr/include/asm
+
+  # bpftool installation
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      ln -sf /usr/lib/$(uname -m)-linux-gnu/libbfd.so /usr/lib/libbfd.so
+   
+      git clone --recurse-submodules https://github.com/libbpf/bpftool.git
+      cd bpftool
+      git submodule update --init
+      cd src
+      make install
+
+  # bpftop installation
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      curl -fLJ https://github.com/Netflix/bpftop/releases/latest/download/bpftop-aarch64-unknown-linux-gnu -o bpftop && chmod +x bpftop
+      mv bpftop /usr/bin/bpftop
+
+  # Golang installation
+  - mode: system
+    script: |
+      #!/bin/bash
+      add-apt-repository ppa:longsleep/golang-backports
+      apt-get update -y
+      apt-get install -y golang-go
+
+  # Rust and Aya Tooling setup
+  - mode: user
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      apt-get install -y openssl libssl-dev pkg-config
+  
+  - mode: user
+    script: |
+      #!/bin/bash
+      # https://aya-rs.dev/book/start/development/
+      set -eux -o pipefail
+      rustup install stable
+      rustup toolchain add nightly
+      rustup component add rust-src --toolchain nightly
+      cargo install cargo-generate
+      cargo install bpf-linker
+      cargo install bindgen-cli
+      cargo install --git https://github.com/aya-rs/aya -- aya-tool
