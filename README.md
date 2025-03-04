@@ -15,3 +15,12 @@ limactl create --name=default default.yaml
 ```
 
 **NOTE**: Checkout the `default.yaml` since some steps are commented, for convenience.
+
+## eBPF Dependencies
+
+The Lima VM already installs eBPF dependencies that allow you to solely focus on the programming, rather than environment setup.
+
+But I still want to sheed some light on the dependecies, to give you a better overview. Namely:
+
+- `clang` is the compiler used to compile eBPF programs into eBPF bytecode.
+- `llvm` is a collection of modular and reusable compiler and toolchain technologies. It includes the LLVM infrastructure required for eBPF program compilation.
