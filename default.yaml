@@ -79,24 +79,3 @@ provision:
       add-apt-repository ppa:longsleep/golang-backports
       apt-get update -y
       apt-get install -y golang-go
-
-  # Rust and Aya Tooling setup
-  - mode: user
-    script: |
-      #!/bin/bash
-      set -eux -o pipefail
-      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-      apt-get install -y openssl libssl-dev pkg-config
-  
-  - mode: user
-    script: |
-      #!/bin/bash
-      # https://aya-rs.dev/book/start/development/
-      set -eux -o pipefail
-      rustup install stable
-      rustup toolchain add nightly
-      rustup component add rust-src --toolchain nightly
-      cargo install cargo-generate
-      cargo install bpf-linker
-      cargo install bindgen-cli
-      cargo install --git https://github.com/aya-rs/aya -- aya-tool
